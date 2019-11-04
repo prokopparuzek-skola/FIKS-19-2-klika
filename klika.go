@@ -12,49 +12,89 @@ type graph struct {
 	X       int
 	flights [][]edge
 }
-type vertex struct {
+type top struct {
 	vrx  int
 	cost int
 }
 
-func djakstra(airports *graph, start int) (costs []int) {
+type state struct {
+	cost      int
+	heapIndex int
+}
+
+func dijkstra(airports *graph, start int) (costs []int) {
+	// pole výsledků
 	costs = make([]int, len(airports.flights)+airports.K+1)
 	costs[start] = 0
-	var vertexes []vertex = make([]vertex, len(airports.flights)+airports.K+1)
-	for i := range vertexes {
-		vertexes[i].vrx = i
-		vertexes[i].cost = -1
+	// pole vrcholů, ukládají se zde dosud spočítané nejkratší cesty
+	var vertex []state = make([]state, len(airports.flights)+airports.K+1)
+	for i := range vertex {
+		vertex[i].cost = -1
+		vertex[i].heapIndex = -1
 	}
-	vertexes[start].cost = 0
+	// nastavení startu, indexuje se od 1
+	vertex[start].cost = 0
+	vertex[start].heapIndex = 1
+	// halda na aktivní vrcholy
+	Overtex := make([]top, 1)
+	heapAdd(&Overtex, &vertex, start)
+	for len(Overtex) > 1 {
+		v := extractMin(&Overtex, &vertex)
+		if v <= airports.K { // letiště v paktu
+		}
+		for i, w := range airports.flights[v] { // ostatní letiště
+		}
+	}
 	return
 }
 
-func bubbleUp(vertexes *[]vertex, n int) {
+func bubbleUp(Overtex *[]top, vertex *[]state, n int) {
 	for n > 1 {
 		parent := n / 2
-		if (*vertexes)[parent].cost < (*vertexes)[n].cost {
+		if (*Overtex)[parent].cost < (*Overtex)[n].cost {
 			break
 		} else {
-			swp := (*vertexes)[parent]
-			(*vertexes)[parent] = (*vertexes)[n]
-			(*vertexes)[n] = swp
+			swp := (*Overtex)[parent]
+			(*Overtex)[parent] = (*Overtex)[n]
+			(*Overtex)[n] = swp
+			(*vertex)[n].heapIndex = parent
+			(*vertex)[parent].heapIndex = n
 		}
 	}
 }
 
-func bubbleDown(vertexes *[]vertex, n int) {
-	for (2 * n) < len(*vertexes) {
+func bubbleDown(Overtex *[]top, vertex *[]state, n int) {
+	for (2 * n) < len(*Overtex) {
 		son := 2 * n
-		if (son+1) < len((*vertexes)) && (*vertexes)[son+1].cost < (*vertexes)[son].cost {
+		if (son+1) < len((*Overtex)) && (*Overtex)[son+1].cost < (*Overtex)[son].cost {
 			son++
-		} else if (*vertexes)[n].cost < (*vertexes)[son].cost {
+		} else if (*Overtex)[n].cost < (*Overtex)[son].cost {
 			break
 		} else {
-			swp := (*vertexes)[son]
-			(*vertexes)[son] = (*vertexes)[n]
-			(*vertexes)[n] = swp
+			swp := (*Overtex)[son]
+			(*Overtex)[son] = (*Overtex)[n]
+			(*Overtex)[n] = swp
+			(*vertex)[n].heapIndex = son
+			(*vertex)[son].heapIndex = n
 		}
 	}
+}
+
+func heapAdd(Overtex *[]top, vertex *[]state, vrx int) {
+	*Overtex = append(*Overtex, top{0, 0})
+	n := len(*Overtex) - 1
+	(*Overtex)[n].vrx = vrx
+	(*Overtex)[n].cost = (*vertex)[vrx].cost
+	bubbleUp(Overtex, vertex, n)
+}
+
+func extractMin(Overtex *[]top, vertex *[]state) (vrx int) {
+	swp := (*Overtex)[0]
+	vrx = swp.vrx
+	(*Overtex)[0] = (*Overtex)[len(*Overtex)-1]
+	bubbleDown(Overtex, vertex, 1)
+	*Overtex = (*Overtex)[:len(*Overtex)-1]
+	return
 }
 
 func main() {
