@@ -22,10 +22,7 @@ type state struct {
 	heapIndex int
 }
 
-func dijkstra(airports *graph, start int) (costs []int) {
-	// pole výsledků
-	costs = make([]int, len(airports.flights)+airports.K+1)
-	costs[start] = 0
+func dijkstra(airports *graph, start int) {
 	// pole vrcholů, ukládají se zde dosud spočítané nejkratší cesty
 	var vertex []state = make([]state, len(airports.flights)+airports.K+1)
 	for i := range vertex {
@@ -41,8 +38,24 @@ func dijkstra(airports *graph, start int) (costs []int) {
 	for len(Overtex) > 1 {
 		v := extractMin(&Overtex, &vertex)
 		if v <= airports.K { // letiště v paktu
+			for i := 0; i < airports.K; i++ {
+				if vertex[i].cost == -1 {
+					vertex[i].cost = vertex[v].cost + airports.X
+					vertex[i].heapIndex = len(Overtex)
+					heapAdd(&Overtex, &vertex, i)
+				} else if vertex[i].cost > (vertex[v].cost + airports.X) {
+					vertex[i].cost = vertex[v].cost + airports.X
+					Overtex[vertex[i].heapIndex].cost = vertex[v].cost + airports.X
+					bubbleUp(&Overtex, &vertex, vertex[i].heapIndex)
+				}
+			}
 		}
-		for i, w := range airports.flights[v] { // ostatní letiště
+		for _, w := range airports.flights[v] { // ostatní letiště
+			if vertex[w.to].cost == -1 {
+				vertex[w.to].cost = vertex[v].cost + airports.X
+				vertex[w.to].heapIndex = len(Overtex)
+				heapAdd(&Overtex, &vertex, w.to)
+			}
 		}
 	}
 	return
