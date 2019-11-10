@@ -37,10 +37,12 @@ func dijkstra(airports *graph, start int) {
 	heapAdd(&Overtex, &vertex, start)
 	for len(Overtex) > 1 {
 		v := extractMin(&Overtex, &vertex)
-		//	println(v)
+		//println(v)
 		if v <= airports.K { // letiště v paktu
-			for i := 0; i < airports.K; i++ {
-				if vertex[i].cost == -1 {
+			for i := 1; i <= airports.K; i++ {
+				if v == i {
+					continue
+				} else if vertex[i].cost == -1 {
 					vertex[i].cost = vertex[v].cost + airports.X // cena
 					vertex[i].heapIndex = len(Overtex)
 					heapAdd(&Overtex, &vertex, i)
@@ -67,7 +69,7 @@ func dijkstra(airports *graph, start int) {
 		if i < len(vertex)-1 {
 			fmt.Printf("%d ", vertex[i].cost)
 		} else {
-			fmt.Printf("%d", vertex[i].cost)
+			fmt.Printf("%d\n", vertex[i].cost)
 		}
 	}
 	return
@@ -82,8 +84,8 @@ func bubbleUp(Overtex *[]top, vertex *[]state, n int) {
 			swp := (*Overtex)[parent]
 			(*Overtex)[parent] = (*Overtex)[n]
 			(*Overtex)[n] = swp
-			(*vertex)[n].heapIndex = parent
-			(*vertex)[parent].heapIndex = n
+			(*vertex)[(*Overtex)[n].vrx].heapIndex = parent
+			(*vertex)[(*Overtex)[parent].vrx].heapIndex = n
 		}
 		n /= 2
 	}
@@ -100,8 +102,8 @@ func bubbleDown(Overtex *[]top, vertex *[]state, n int) {
 			swp := (*Overtex)[son]
 			(*Overtex)[son] = (*Overtex)[n]
 			(*Overtex)[n] = swp
-			(*vertex)[n].heapIndex = son
-			(*vertex)[son].heapIndex = n
+			(*vertex)[(*Overtex)[n].vrx].heapIndex = son
+			(*vertex)[(*Overtex)[son].vrx].heapIndex = n
 		}
 		n *= 2
 	}
@@ -120,8 +122,13 @@ func extractMin(Overtex *[]top, vertex *[]state) (vrx int) {
 	vrx = swp.vrx
 	(*Overtex)[1] = (*Overtex)[len(*Overtex)-1]
 	*Overtex = (*Overtex)[:len(*Overtex)-1]
-	bubbleDown(Overtex, vertex, 1)
 	(*vertex)[vrx].heapIndex = -1
+	for i := 1; i < len(*vertex); i++ {
+		if (*vertex)[i].heapIndex != -1 {
+			(*vertex)[i].heapIndex--
+		}
+	}
+	bubbleDown(Overtex, vertex, 1)
 	return
 }
 
