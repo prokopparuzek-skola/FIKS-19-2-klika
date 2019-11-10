@@ -81,11 +81,11 @@ func bubbleUp(Overtex *[]top, vertex *[]state, n int) {
 		if (*Overtex)[parent].cost < (*Overtex)[n].cost {
 			break
 		} else {
+			(*vertex)[(*Overtex)[n].vrx].heapIndex = parent
+			(*vertex)[(*Overtex)[parent].vrx].heapIndex = n
 			swp := (*Overtex)[parent]
 			(*Overtex)[parent] = (*Overtex)[n]
 			(*Overtex)[n] = swp
-			(*vertex)[(*Overtex)[n].vrx].heapIndex = parent
-			(*vertex)[(*Overtex)[parent].vrx].heapIndex = n
 		}
 		n /= 2
 	}
@@ -99,11 +99,11 @@ func bubbleDown(Overtex *[]top, vertex *[]state, n int) {
 		} else if (*Overtex)[n].cost < (*Overtex)[son].cost {
 			break
 		} else {
+			(*vertex)[(*Overtex)[n].vrx].heapIndex = son
+			(*vertex)[(*Overtex)[son].vrx].heapIndex = n
 			swp := (*Overtex)[son]
 			(*Overtex)[son] = (*Overtex)[n]
 			(*Overtex)[n] = swp
-			(*vertex)[(*Overtex)[n].vrx].heapIndex = son
-			(*vertex)[(*Overtex)[son].vrx].heapIndex = n
 		}
 		n *= 2
 	}
