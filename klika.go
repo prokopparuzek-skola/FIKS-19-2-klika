@@ -1,23 +1,24 @@
+// psáno v jazyce golang
 package main
 
 import "fmt"
 
-type edge struct {
+type edge struct { // hrana grafu
 	to   int
 	cost int
 }
 
-type graph struct {
+type graph struct { // graf
 	K       int
 	X       int
 	flights [][]edge
 }
-type top struct {
+type top struct { // vrchol v haldě
 	vrx  int
 	cost int
 }
 
-type state struct {
+type state struct { // vrchol
 	cost      int
 	heapIndex int
 }
@@ -37,12 +38,11 @@ func dijkstra(airports *graph, start int) {
 	heapAdd(&Overtex, &vertex, start)
 	for len(Overtex) > 1 {
 		v := extractMin(&Overtex, &vertex)
-		//println(v)
 		if v <= airports.K { // letiště v paktu
 			for i := 1; i <= airports.K; i++ {
 				if v == i {
 					continue
-				} else if vertex[i].cost == -1 {
+				} else if vertex[i].cost == -1 { // ještě jsem tu nebyl
 					vertex[i].cost = vertex[v].cost + airports.X // cena
 					vertex[i].heapIndex = len(Overtex)
 					heapAdd(&Overtex, &vertex, i)
@@ -143,11 +143,11 @@ func main() {
 	for i := 0; i < N; i++ {
 		airports.flights[i] = make([]edge, 0)
 	}
-	for i := 0; i < M; i++ {
+	for i := 0; i < M; i++ { // načtení letů
 		var from, to, cost int
 		fmt.Scanf("%d %d %d", &from, &to, &cost)
 		airports.flights[from] = append(airports.flights[from], edge{to, cost})
 		airports.flights[to] = append(airports.flights[to], edge{from, cost})
 	}
-	dijkstra(&airports, V)
+	dijkstra(&airports, V) // prohledání
 }
